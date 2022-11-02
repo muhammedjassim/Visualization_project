@@ -1,0 +1,190 @@
+---
+title: "Industrial Labour Accident"
+subtitle: "Muhammed Jassim"
+author: "MDS202220"
+date: "27 October 2022"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 12, text.size = 20)
+```
+
+## Introduction
+
+This project aims at addressing the different factors associated with industrial accidents and analysing them. We utilize packages from R like ggplot2 inorder to recognize the various factors. We extract relevant information from the data using different visualization techniques such as bar charts, line charts, pie chart etc.
+
+## Dataset Description
+
+The dataset is acquired from Kaggle's [Industrial Safety and Health Analytics Database](https://www.kaggle.com/datasets/ihmstefanini/industrial-safety-and-health-analytics-database?select=IHMStefanini_industrial_safety_and_health_database_with_accidents_description.csv). The database provides records of accidents from 12 different plants in 3 various countries which every line in the data is an occurrence of an accident.
+
+* Columns description:
+  * `Date` [_Date_] : Timestamp or time/date information.
+  * `Countries` [_Categorical_] : Which country the accident occurred (anonymized).
+  * `Local` [_Categorical_] : The city where the manufacturing plant is located (anonymized).
+  * `Sector` [_Categorical_] : Which sector the plant belongs to.
+  * `Level` [_Categorical_] : From I to VI, it registers how severe was the accident (I means not severe but VI means very severe).
+  * `Potential_level` [_Categorical_] : Depending on the Accident Level, the database also registers how severe the accident could have been (due to other factors involved in the accident).
+  * `Gender` [_Categorical_] : If the person is male of female.
+  * `Victim` [_Categorical_] : If the injured person is an employee or a third party.
+  * `Critical_risk` [_Categorical_] : Some description of the risk involved in the accident.
+  
+```{r}
+library(DT)
+
+df = read.csv("C:\\Users\\jassi\\IHMStefanini_industrial_safety_and_health_database_with_accidents_description.csv")
+
+# Removing irrelevent columns.
+
+df$Description = NULL
+df$X = NULL
+
+# Renaming columns
+
+colnames(df)[1] = 'Date'
+colnames(df)[4] = 'Sector'
+colnames(df)[5] = 'Level'
+colnames(df)[6] = 'Potential_level'
+colnames(df)[7] = 'Gender'
+colnames(df)[8] = 'Victim'
+colnames(df)[9] = 'Critical_risk'
+
+# Preparing the Date column.
+
+df$Date = format(as.Date(df$Date), '%Y-%m')
+#datatable(head(df), options = list(scrollX = TRUE))
+#head(df)
+```
+
+\pagebreak
+
+## Graphical presentation of Key variables
+
+```{r}
+library('ggplot2')
+```
+
+---
+
+### Month-wise occurance of accidents
+
+---
+
+```{r}
+ggplot(df, aes(x=Date)) +
+  geom_histogram(stat = 'count', color = 'black', fill = '#FFB9B9') +
+  labs(x = 'Month', y = 'No of Accidents') +
+  ggtitle('Monthly Frequency of Industrial Accidents') +
+  theme(plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, size = 13),
+        axis.title = element_text(size = 17), axis.text = element_text(size = 13))
+```
+
++ The graph provides the number of accidents occured in each month from `2016-01` to `2017-07`.
++ As can be observed from the graph, the most number of accidents have occured in `2016-03` and the least number of accidents have occured in `2017-07`.
+
+\pagebreak
+
+---
+
+### Gender-wise occurance of accidents across industrial sectors
+
+---
+
+```{r}
+ggplot(df, aes(x = Sector, fill = Gender)) +
+  geom_bar(stat = 'count', position = 'dodge', color = 'black') +
+  labs(x = 'Industry Sector', y = 'Number of Accidents') +
+  ggtitle('Gender-wise Accident frequency across Industrial Sectors') +
+  theme(plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(size = 13),
+        legend.key.size = unit(1.5, 'cm'), legend.title = element_text(size = 17),
+        legend.text = element_text(size = 15), axis.title = element_text(size = 17),
+        axis.text = element_text(size = 13)) +
+  scale_fill_manual(values = c('#3E6D9C','#FAD6A5'))
+```
+
+* The bar graph gives the number of accidents occured to different genders across various industrial sectors.
+* It is evident from the diagram that more accidents occur to `Male` than `Female` in each sector.
+_ It is also observable that among the industrial sectors, `Mining` sector highest number of accidents.
+
+\pagebreak
+
+---
+
+### Trend in Sector-wise accidents throughout time
+
+---
+
+```{r}
+ggplot(df, aes(x = Date, col = Sector, group = Sector)) +
+  geom_line(stat = 'count', size = 1) +
+  geom_point(stat = 'count') +
+  labs(x= 'Month', y = 'Number of Accidents') +
+  ggtitle('Trend in number of accidents in different sectors') +
+  scale_colour_manual(values = c('#293462','#D61C4E', '#FEB139')) +
+  theme(plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, size = 13),
+        legend.key.size = unit(1.5, 'cm'), legend.title = element_text(size = 17),
+        legend.text = element_text(size = 15), axis.title = element_text(size = 17),
+        axis.text.y = element_text(size = 13))
+```
+
++ The graph displays the trend in the number of accidents occured in each industrial sector from `2016-01` to `2017-07`.
++ The graph reveals that the sector with most number of accidents throughout the months is the `Mining` industry.
+
+\pagebreak
+
+---
+
+### Percentage of victims of accidents
+
+---
+```{r}
+vict = c('Third Party', 'Third Party (Remote)', 'Employee')
+freq = c(0, 0, 0)
+
+for (i in c(t(df$Victim))){
+  if (i == 'Third Party'){
+    freq[1] = freq[1] + 1
+  }
+  else if (i == 'Third Party (Remote)'){
+    freq[2] = freq[2] + 1
+  }
+  else {
+    freq[3] = freq[3] + 1
+  }
+}
+
+victim_freq = data.frame(vict, freq)
+
+ggplot(victim_freq, aes(x = "", y = freq, fill = vict)) +
+  geom_col(color = 'black') +
+  coord_polar(theta = 'y') +
+  geom_text(aes(label = round(100 * freq/sum(freq), 2)), position = position_stack(vjust = 0.5), size = 10) +
+  scale_fill_manual(values = c('#6D8B74','#7D1E6A', '#B689C0')) +
+  ggtitle('Percentage of victims') +
+  theme_void() +
+  guides(fill = guide_legend(title = 'Victim')) +
+  theme(plot.title = element_text(hjust = 0.5, size = 20),
+        legend.key.size = unit(1.5, 'cm'), legend.title = element_text(size = 17),
+        legend.text = element_text(size = 15))
+```
+
++ The pie chart plotted above gives the number and thus the ratio of `Employees`, `Third Party` and `Third Party (Remote)` among the victims.
++ `Third Party` is the most among the victims.
++ `Third Party (Remote)` is the least among the victims.
+
+## Summary of Analysis
+
+* The number of accidents have been highest in the month of March-2016 and lowest in July-2017.
+* Across different industrial sectors, males meet with more industrial accidents than females.
+* The data shows that mining industry and metals industry have more records of accidents than other industrial sectors, with mining industry being the sector with most number of accidents recorded.
+* Third parties are the most who falls victims to industrial accidents, followed by employees.
+
+## Conclusion
+
+In this report we have analysed a few factors associated with industrial accidents such as month-wise frequency, gender-wise frequency etc. In the dashboard we will incorporate more interactive graphs which will also provide in-depth understanding about the other factors such as Intensity level of the accidents, localities where the accidents took place, critical risks and more. We will also find the frequency of occurance of accidents categorised by combinations of factors.
