@@ -31,8 +31,6 @@ colnames(mydata)[9] = 'Critical_risk'
 
 mydata$Date = format(as.Date(mydata$Date), '%Y-%m')
 
-head(mydata)
-
 ui <- dashboardPage(
   dashboardHeader(title="Industrial Accidents"),
   dashboardSidebar(
@@ -52,10 +50,25 @@ ui <- dashboardPage(
                        h3("This dashboard aims at addressing the different factors associated with industrial accidents and analysing them. We utilize the data obtained to visually analyse them by allowing the user to interact with the plots and retrieve the insights required. I have included plots which provide information into the number of accidents occured corresponding to different factors associated. We extract relevant information from the data using different interactive visualization techniques."),
                        align = "center"
                 )),
+      tabItem("data",
+              tabsetPanel(
+                tabPanel("Data Head",
+                         h3("First 10 rows of the Industrial Labours Accidents Data"),
+                         tableOutput("table_head"),
+                         align = "center"
+                ),
+                tabPanel("Data Select",
+                         h3("Viewing the selected portion of the data"),
+                         checkboxGroupInput("selvars", "Add/Remove Data Variables", colnames(mydata)),
+                         textInput("selrows", "Select Rows (vector expression)", "1:15"),
+                         tableOutput("table_select"),
+                         align = "center"
+                  )
+                )),
       tabItem("univar",
               tabsetPanel(
                 tabPanel("Frequency",
-                         h3("Analysis the frequency of values of a variable"),
+                         h3("Analysis of frequency of values of a variable"),
                          selectInput("cat_var", "Categorical Variable", colnames(mydata)[-c(9)]),
                          plotOutput("hist_plot"),
                          h4("Frequency Table"),
@@ -63,7 +76,7 @@ ui <- dashboardPage(
                          align = "center"
                   ),
                 tabPanel("Proportion",
-                         h3("Analysis the proportion of values of a variable"),
+                         h3("Analysis of proportion of values of a variable"),
                          selectInput("cat_var_1", "Categorical Variable", colnames(mydata)[-c(1,3,9)]),
                          plotOutput("pie_plot"),
                          align = "center"
@@ -83,21 +96,6 @@ ui <- dashboardPage(
                        selectInput("cat_var_4", "Select Variable", colnames(mydata)[-c(1,3,9)]),
                        plotOutput("time_plot"),
                        align = "center"
-              )),
-      tabItem("data",
-              tabsetPanel(
-                tabPanel("Data Head",
-                         h3("First 10 rows of the Industrial Labours Accidents Data"),
-                         tableOutput("table_head"),
-                         align = "center"
-                ),
-                tabPanel("Data Select",
-                         h3("Viewing the selected portion of the data"),
-                         checkboxGroupInput("selvars", "Add/Remove Data Variables", colnames(mydata)),
-                         textInput("selrows", "Select Rows (vector expression)", "1:15"),
-                         tableOutput("table_select"),
-                         align = "center"
-                )
               ))
     )
   )
