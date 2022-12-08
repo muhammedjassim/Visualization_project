@@ -39,7 +39,7 @@ ui <- dashboardPage(
       menuItem("Data", tabName = "data"),
       menuItem("Univariate Analysis", tabName = "univar"),
       menuItem("Multivariate Analysis", tabName = "multivar"),
-      menuItem("Time Series Anlaysis", tabName = "timeseries")
+      menuItem("Time Series Analysis", tabName = "timeseries")
     )
   ),
   dashboardBody(
